@@ -18,26 +18,26 @@ export const useEmergencyReports = () => {
     id: r.id,
     description: r.description,
     status: r.status,
-    emergencyTypeId: r.emergency_type_id, // 👈 เก็บ id ไว้
-    reportedAt: r.created_at,
-    userId: r.user_id, // เพิ่มถ้าต้องการใช้กรอง
+    emergency_type_id: r.emergency_type_id, // ใช้ชื่อเดียวกับที่ dashboard.vue ใช้
+    created_at: r.created_at, // ใช้ชื่อเดียวกับที่ dashboard.vue ใช้
+    user_id: r.user_id,
   });
 
   /* ---------- actions ---------- */
-  /** ดึงรายการเหตุฉุกเฉินทั้งหมด (อาจจะไม่ใช้) */
+  /** ดึงรายการเหตุฉุกเฉินทั้งหมด (สำหรับ admin) */
   const fetchEmergencyReports = async () => {
     isLoading.value = true;
     error.value = null;
     try {
-      // ดึงข้อมูลทั้งหมด หรือจะกรอง user_id ก็ได้
-      const res = await apiClient.get("/emergency_reports", {
-        params: { user_id: userId }, // ส่ง user_id เพื่อกรองฝั่ง backend
-      });
-      // สมมติ res.data.data คือ array ของ reports
-      reports.value = res.data.data.map(mapReport);
+      // ดึงข้อมูลทั้งหมดโดยไม่กรอง user_id สำหรับ admin
+      const res = await service.emergency_report.fetchEmergency_report({});
+      // ข้อมูลจาก backend อยู่ใน res.data.data
+      const rawData = res.data.data || [];
+      reports.value = rawData.map(mapReport);
     } catch (err) {
       error.value = err;
       reports.value = [];
+      console.error("Error fetching emergency reports:", err);
     } finally {
       isLoading.value = false;
     }
