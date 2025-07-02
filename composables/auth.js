@@ -1,3 +1,4 @@
+// composables/auth.js
 import { ref } from "vue";
 import service from "../service";
 
@@ -23,6 +24,20 @@ export const useAuth = () => {
     }
   };
 
+  // ฟังก์ชันใหม่ สำหรับ register
+  const sendRegister = async (payload) => {
+    isLoading.value = true;
+    try {
+      const res = await service.auth.createUser(payload); // เรียก API createUser ที่คุณสร้างไว้
+      return { success: true, data: res.data };
+    } catch (err) {
+      console.error("Register failed:", err.response?.data || err.message);
+      return { success: false, error: err };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
   // ฟังก์ชันใหม่ สำหรับดึงรายงานเหตุฉุกเฉินตาม userId
   const getEmergencyReportsByUserId = async (userId) => {
     try {
@@ -34,5 +49,5 @@ export const useAuth = () => {
     }
   };
 
-  return { sendAuth, sendLogout, getEmergencyReportsByUserId, isLoading };
+  return { sendAuth, sendLogout, sendRegister, getEmergencyReportsByUserId, isLoading };
 };
